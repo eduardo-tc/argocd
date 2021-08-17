@@ -1,0 +1,24 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: rollout-appsite-gateway
+spec:
+  gateways:
+  - java-gateway
+  hosts:
+  - '*'
+  http:
+  - match:
+    - uri:
+        prefix: /time
+    - uri:
+        prefix: /q/metrics
+    - uri:
+        prefix: /q/health
+    - uri:
+        prefix: /q/health/ready                
+    route:
+    - destination:
+        host: rollout-appsite
+        port:
+          number: 8080

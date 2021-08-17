@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: rollout-appsite
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+     app: rollout-appsite
+ # --- Este bloco tem a função de criar os pods por igual. ---   
+  template:
+    metadata:
+      labels:
+        app: rollout-appsite
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8090"        
+    spec:
+      containers:
+      - name: rollout-appsite
+        image: eoliveiralorente/time-v1:latest
+    ports:
+    - containerPort: 8080
+  # --- O "minReadySeconds" tem a função de criar o  número mínimo de segundos para os pods recém-criados deve estar pronto. ---
+  minReadySeconds: 30
+  # --- O "revisionHistoryLimit" tem a função de reter o número de ReplicaSets antigos. ---
+  revisionHistoryLimit: 3
+  strategy:
+    canary:
+      # --- maxSurge, tem a função de reduzir o replicaset estável, para atingir o peso de 10%, essa redução possibilitar o redirecionamento da nova aplicação para teste.
+      maxSurge: "10%" 
+      maxUnavailable: 0
+      steps:
+      # --- setWeight, tem a função de redirecionará 10% do trafego para nova versão ---
+      - setWeight: 10 
+      - pause:
+          duration: 30
+      # --- setWeight, tem a função de redirecionará 50% do trafego para nova versão ---    
+      - setWeight: 50
+      - pause: {}

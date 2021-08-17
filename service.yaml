@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    cloud.google.com/load-balancer-type: External
+  name: rollout-appsite
+  labels:
+    app: rollout-appsite
+    service: rollout-appsite
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: rollout-appsite
+#  type: LoadBalancer  
